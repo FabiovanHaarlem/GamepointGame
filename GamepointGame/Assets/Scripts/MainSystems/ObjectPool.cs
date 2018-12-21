@@ -7,14 +7,14 @@ namespace MainGame
     {
         private List<Dice> m_Dice;
 
-        private void Awake()
+        public void PrepareScriptVariables()
         {
             m_Dice = new List<Dice>();
         }
 
-        private void Start()
+        public void GetScriptRefs(GameManager gameManager)
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 10; i++)
             {
                 GameObject dice = Instantiate(Resources.Load("Prefabs/Dice")) as GameObject;
                 m_Dice.Add(dice.GetComponent<Dice>());

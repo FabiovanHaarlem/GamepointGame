@@ -40,6 +40,7 @@ namespace MainGame
             GetUIManager.PrepareScriptVariables();
 
             GetObjectPool = GetComponent<ObjectPool>();
+            GetObjectPool.PrepareScriptVariables();
 
             m_Dice = new List<Dice>();
         }
@@ -49,6 +50,7 @@ namespace MainGame
             GetEventManager.E_PrepareNewRoundEvent += PrepareRandomNumber;
             GetScoreManager.GetScriptRefs(this);
             GetUIManager.GetScriptRefs(this);
+            GetObjectPool.GetScriptRefs(this);
             //for (int i = 0; i < 2; i++)
             //{
             //    CreateDice();
