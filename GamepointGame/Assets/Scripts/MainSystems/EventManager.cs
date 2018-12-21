@@ -1,36 +1,38 @@
 ﻿using UnityEngine;
-
-public class EventManager : MonoBehaviour
+namespace MainGame
 {
-    public delegate void PrepareNewRoundEvent();
-    public PrepareNewRoundEvent E_PrepareNewRoundEvent;
-
-    public void PrepareNewRound()
+    public class EventManager : MonoBehaviour
     {
-        E_PrepareNewRoundEvent.Invoke();
-    }
+        public delegate void PrepareNewRoundEvent();
+        public PrepareNewRoundEvent E_PrepareNewRoundEvent;
 
-    public delegate void StartNewRoundEvent();
-    public StartNewRoundEvent E_StartNewRoundEvent;
+        public void PrepareNewRound()
+        {
+            E_PrepareNewRoundEvent.Invoke();
+        }
 
-    public void StartNewRound()
-    {
-        E_StartNewRoundEvent.Invoke();
-    }
+        public delegate void StartNewRoundEvent();
+        public StartNewRoundEvent E_StartNewRoundEvent;
 
-    public delegate void RollDiceEvent();
-    public RollDiceEvent E_RollDiceEvent;
+        public void StartNewRound()
+        {
+            E_StartNewRoundEvent.Invoke();
+        }
 
-    public void RollDice()
-    {
-        E_RollDiceEvent.Invoke();
-    }
+        public delegate void RollDiceEvent();
+        public RollDiceEvent E_RollDiceEvent;
 
-    public delegate void CheckDiceEvent();
-    public CheckDiceEvent E_CheckDiceEvent;
+        public void RollDice()
+        {
+            E_RollDiceEvent.Invoke();
+        }
 
-    public void CheckDice()
-    {
-        E_CheckDiceEvent.Invoke();
+        public delegate void CheckDiceEvent();
+        public CheckDiceEvent E_CheckDiceEvent;
+
+        public void CheckDice()
+        {
+            E_CheckDiceEvent.Invoke();
+        }
     }
 }

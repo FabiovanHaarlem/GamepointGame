@@ -1,44 +1,59 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class Dice : MonoBehaviour
+namespace MainGame
 {
-    [SerializeField]
-    private List<Sprite> m_DiceSprites;
-    private SpriteRenderer m_SpriteRenderer;
-    private int m_Number;
-
-    private void Start()
+    public class Dice : MonoBehaviour
     {
-        m_SpriteRenderer = GetComponent<SpriteRenderer>();
-        Roll();
-        SetSprite(m_Number);
-        GameManager.m_Instance.GetEventManager.E_RollDiceEvent += Roll;
-    }
+        [SerializeField]
+        private List<Sprite> m_DiceSprites;
+        private SpriteRenderer m_SpriteRenderer;
+        private Rigidbody2D m_Rigidbody2D;
+        private int m_Number;
 
-    public void SetPosition(Vector2 pos)
-    {
-        transform.position = pos;
-    }
+        private void Start()
+        {
+            m_SpriteRenderer = GetComponent<SpriteRenderer>();
+            m_Rigidbody2D = GetComponent<Rigidbody2D>();
+            m_Number = GetRandomNumber(1, 7);
+            SetSprite(m_Number);
+            //GameManager.m_Instance.GetEventManager.E_RollDiceEvent += Roll;
+            gameObject.SetActive(false);
+        }
 
-    private void Roll()
-    {
-        m_Number = GetRandomNumber();
-        SetSprite(m_Number);
-    }
+        public void SetPosition(Vector2 pos)
+        {
+            transform.position = pos;
+        }
 
-    public int GetNumber()
-    {
-        return m_Number;
-    }
+        public void Roll()
+        {
+            gameObject.SetActive(true);
+            ThrowDice();
+            m_Number = GetRandomNumber(1, 7);
+            SetSprite(m_Number);
+        }
 
-    private int GetRandomNumber()
-    {
-        return Random.Range(1, 7);
-    }
+        private void ThrowDice()
+        {
+            Vector2 throwToPosition = new Vector2(Random.Range(2f, 5f), Random.Range(-2f, 3f));
+            Vector2 direction = (throwToPosition - new Vector2(transform.position.x, transform.position.y).normalized);
+            m_Rigidbody2D.AddForce(direction * GetRandomNumber(3, 8), ForceMode2D.Impulse);
+        }
 
-    private void SetSprite(int number)
-    {
-        m_SpriteRenderer.sprite = m_DiceSprites[number - 1];
+        public int GetNumber()
+        {
+            return m_Number;
+        }
+
+        private int GetRandomNumber(int min, int max)
+        {
+            return Random.Range(min, max);
+        }
+
+        private void SetSprite(int number)
+        {
+            m_SpriteRenderer.sprite = m_DiceSprites[number - 1];
+        }
     }
 }

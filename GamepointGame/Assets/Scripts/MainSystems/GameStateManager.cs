@@ -1,24 +1,27 @@
 ﻿using UnityEngine;
 
-public class GameStateManager : MonoBehaviour
+namespace MainGame
 {
-    private GameState m_CurrentGameState;
-
-    public void ChangeGameState(GameState newGameState)
+    public class GameStateManager : MonoBehaviour
     {
-        m_CurrentGameState = newGameState;
+        private GameState m_CurrentGameState;
+
+        public void ChangeGameState(GameState newGameState)
+        {
+            m_CurrentGameState = newGameState;
+        }
+
+        public GameState GetGameState()
+        {
+            return m_CurrentGameState;
+        }
     }
 
-    public GameState GetGameState()
+    public enum GameState
     {
-        return m_CurrentGameState;
+        StartGame = 0,
+        MakingPrediction,
+        Rollin,
+        Rolled
     }
-}
-
-public enum GameState
-{
-    StartGame = 0,
-    MakingPrediction,
-    Rollin,
-    Rolled
 }

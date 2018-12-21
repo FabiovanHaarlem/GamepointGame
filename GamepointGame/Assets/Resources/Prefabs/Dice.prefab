@@ -55,8 +55,8 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_LinearDrag: 3
+  m_AngularDrag: 3
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_Interpolate: 0
@@ -100,12 +100,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_DiceSprites:
-  - {fileID: 21300000, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
-  - {fileID: 21300002, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
-  - {fileID: 21300004, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
-  - {fileID: 21300006, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
-  - {fileID: 21300008, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
-  - {fileID: 21300010, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
+  - {fileID: 21300000, guid: f28e0136dcd79c04cb560526404896a6, type: 3}
+  - {fileID: 21300000, guid: 06870164deadeeb46b01b94bc1999fa1, type: 3}
+  - {fileID: 21300000, guid: 8c25d5e5fb62f67469a6b71934530dae, type: 3}
+  - {fileID: 21300000, guid: 2ad3ce4d206d2ef4691520e5d62abb2f, type: 3}
+  - {fileID: 21300000, guid: b8443ae0bf85c464ca64982e9ce25042, type: 3}
+  - {fileID: 21300000, guid: caa0f6aac917c2a4f93d124bf37bdbf8, type: 3}
 --- !u!212 &212578882308250282
 SpriteRenderer:
   m_ObjectHideFlags: 1
@@ -140,8 +140,8 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: 21300010, guid: 7a6096179522c9c42b0fbbd6475ca338, type: 3}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: caa0f6aac917c2a4f93d124bf37bdbf8, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
