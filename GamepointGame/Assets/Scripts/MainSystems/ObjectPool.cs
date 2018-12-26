@@ -14,7 +14,13 @@ namespace MainGame
 
         public void GetScriptRefs(GameManager gameManager)
         {
-            for (int i = 0; i < 10; i++)
+            LoadDice();
+        }
+
+        //Instantiate X amount of dice to be reused
+        private void LoadDice()
+        {
+            for (int i = 0; i < 5; i++)
             {
                 GameObject dice = Instantiate(Resources.Load("Prefabs/Dice")) as GameObject;
                 m_Dice.Add(dice.GetComponent<Dice>());
@@ -28,9 +34,10 @@ namespace MainGame
 
             for (int i = 0; i < amount; i++)
             {
-                dice.Add(m_Dice[i]);
+                dice.Add(m_Dice[i]); //Loads the amount of dice needed into empty array
             }
-
+            
+            //If the maximum amount of dice are reached then 1 extra dice will be created
             if (dice.Count == m_Dice.Count)
             {
                 GameObject diceObject = Instantiate(Resources.Load("Prefabs/Dice")) as GameObject;

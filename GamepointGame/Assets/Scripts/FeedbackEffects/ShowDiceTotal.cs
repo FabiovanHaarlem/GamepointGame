@@ -10,7 +10,7 @@ namespace MainGame
 
         private float m_ActiveTimer;
 
-        private void Start()
+        private void Awake()
         {
             m_RectTransform = GetComponent<RectTransform>();
             m_Text = transform.GetChild(0).GetComponent<Text>();
@@ -18,12 +18,14 @@ namespace MainGame
 
         public void Activate(Vector2 startPosition, int value)
         {
-            gameObject.SetActive(true);
-            m_ActiveTimer = 1.2f;
+            //Converts the dice world position to sceen position
             m_RectTransform.position = Camera.main.WorldToScreenPoint(new Vector2(startPosition.x, startPosition.y + 0.5f));
+            gameObject.SetActive(true);
             m_Text.text = value.ToString();
+            m_ActiveTimer = 1.2f;
         }
 
+        //Moves the object upwards
         private void Update()
         {
             Vector2 currentPos = m_RectTransform.position;

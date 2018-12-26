@@ -19,8 +19,8 @@ namespace MainGame
 
     public enum GameState
     {
-        StartGame = 0,
-        MakingPrediction,
+        Preparing = 0,
+        ReadyToRoll,
         Rollin,
         Rolled
     }

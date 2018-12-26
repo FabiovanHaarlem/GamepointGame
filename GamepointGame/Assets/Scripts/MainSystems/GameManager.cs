@@ -1,176 +1,224 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MainGame
 {
     [RequireComponent(typeof(EventManager))]
+    [RequireComponent(typeof(ObjectPool))]
+    [RequireComponent(typeof(GameStateManager))]
     [RequireComponent(typeof(ScoreManager))]
     [RequireComponent(typeof(UIManager))]
     public class GameManager : MonoBehaviour
     {
+        [SerializeField] private GlobalGameValues m_GlobalGameValues;
+        [SerializeField] private Transform m_DiceStartPosition;
+
         public static GameManager m_Instance;
-
-        public EventManager GetEventManager { get; private set; }
-        public ScoreManager GetScoreManager { get; private set; }
-        public UIManager GetUIManager { get; private set; }
-        public ObjectPool GetObjectPool { get; private set; }
-
+        private EventManager m_EventManager;
+        private ObjectPool m_ObjectPool;
+        private GameStateManager m_GameStateManager;
+        private ScoreManager m_ScoreManager;
+        private UIManager m_UIManager;
         private List<Dice> m_Dice;
-        [SerializeField]
-        private Transform m_DiceStartPosition;
 
         private Prediction m_Prediction;
+
         private int m_MainNumber;
         private int m_LastNumber;
         private int m_Round;
-        private bool m_LostPreviousRound;
+
+        #region PrivateVariablesGetMethods
+        public GlobalGameValues GetGlobalGameValue()
+        { return m_GlobalGameValues; }
+
+        public EventManager GetEventManager()
+        { return m_EventManager; }
+
+        public ObjectPool GetObjectPool()
+        { return m_ObjectPool; }
+
+        public ScoreManager GetScoreManager()
+        { return m_ScoreManager; }
+
+        public UIManager GetUIManager()
+        { return m_UIManager; }
+
+        public Prediction GetCurrentPrediction()
+        { return m_Prediction; }
+
+        public List<Dice> GetActiveDice()
+        { return m_Dice; }
+
+        public int GetCurrentNumber()
+        { return m_MainNumber; }
+
+        public int GetCurrentPreviousNumber()
+        { return m_LastNumber; }
+
+        public int GetCurrentRound()
+        { return m_Round; }
+        #endregion
 
         private void Awake()
         {
+            m_Dice = new List<Dice>();
             m_Instance = this;
-            m_LostPreviousRound = false;
             m_Round = 1;
             m_LastNumber = 0;
-            GetEventManager = GetComponent<EventManager>();
 
-            GetScoreManager = GetComponent<ScoreManager>();
-            GetScoreManager.PrepareScriptVariables();
+            m_EventManager = GetComponent<EventManager>();
 
-            GetUIManager = GetComponent<UIManager>();
-            GetUIManager.PrepareScriptVariables();
+            m_ObjectPool = GetComponent<ObjectPool>();
+            m_ObjectPool.PrepareScriptVariables();
 
-            GetObjectPool = GetComponent<ObjectPool>();
-            GetObjectPool.PrepareScriptVariables();
+            m_GameStateManager = GetComponent<GameStateManager>();
 
-            m_Dice = new List<Dice>();
+            m_ScoreManager = GetComponent<ScoreManager>();
+            m_ScoreManager.PrepareScriptVariables();
+
+            m_UIManager = GetComponent<UIManager>();
         }
 
         private void Start()
         {
-            GetEventManager.E_PrepareNewRoundEvent += PrepareRandomNumber;
-            GetScoreManager.GetScriptRefs(this);
-            GetUIManager.GetScriptRefs(this);
-            GetObjectPool.GetScriptRefs(this);
-            //for (int i = 0; i < 2; i++)
-            //{
-            //    CreateDice();
-            //}
-            GetDice(m_Round + 1);
+            ChangeGameState(GameState.Preparing);
+            m_ScoreManager.GetScriptRefs(this);
+            m_UIManager.GetScriptRefs(this);
+            m_ObjectPool.GetScriptRefs(this);
+            LoadNewDice();
             PrepareRound();
         }
 
-        private void GetDice(int amount)
+        public void ChangeGameState(GameState newGameState)
         {
-            m_Dice = new List<Dice>(GetObjectPool.GetDice(amount));
+            m_GameStateManager.ChangeGameState(newGameState);
         }
 
-        //private void CreateDice()
-        //{
-        //    GameObject dice = Instantiate(Resources.Load("Prefabs/Dice")) as GameObject;
-        //    m_Dice.Add(dice.GetComponent<Dice>());
-        //}
+        public bool CheckGameState(GameState checkedGameState)
+        {
+            if (m_GameStateManager.GetGameState() == checkedGameState)
+                return true;
+            else
+                return false;
+        }
+
+        private void LoadNewDice()
+        {
+            m_Dice = new List<Dice>(m_ObjectPool.GetDice(m_Round + 1));
+        }
 
         private void PrepareRound()
         {
-            GetEventManager.PrepareNewRound();
-            StartRound();
+            m_MainNumber = GenerateMainNumber(m_Round + 1);
+            m_EventManager.RefreshUI();
+            m_UIManager.RefreshDiceOnNextRoll(m_Dice.Count);
+            ChangeGameState(GameState.ReadyToRoll);
         }
-
-        private void StartRound()
+        
+        public int GenerateMainNumber(int amountOfDice)
         {
-            GetEventManager.StartNewRound();
-        }
-
-        public int GetCurrentNumber()
-        {
-            return m_MainNumber;
-        }
-
-        public int GetCurrentPreviousNumber()
-        {
-            return m_LastNumber;
-        }
-
-        public Prediction GetCurrentPrediction()
-        {
-            return m_Prediction;
-        }
-
-        public List<Dice> GetAllDice()
-        {
-            return m_Dice;
-        }
-
-        public int GetCurrentRound()
-        {
-            return m_Round;
-        }
-
-        public void PrepareRandomNumber()
-        {
-            //Switch to amount of dice
-            m_MainNumber = GetRandomNumber(m_Dice.Count);
-        }
-
-        public int GetRandomNumber(int amountOfDice)
-        {
-            int maxValue = (6 * amountOfDice) + 1;
+            int maxValue = (6 * amountOfDice) + 1;// max value if all dice roll 6
             return Random.Range(amountOfDice, maxValue); ;
         }
 
+        //Sets the prediction of the player
         public void SetPrediction(int prediction)
         {
-            m_Prediction = (Prediction)prediction;
-            GetUIManager.SelectCurrentPrediction(m_Prediction);
+            if (CheckGameState(GameState.ReadyToRoll))
+            {
+                m_Prediction = (Prediction)prediction;
+                m_UIManager.SelectCurrentPrediction(m_Prediction);
+            }
         }
 
+        //Rolls all active dice
         public void RollDice()
         {
-            if (GetScoreManager.PayForRoll(m_Round))
+            if (CheckGameState(GameState.ReadyToRoll))
             {
-                ResetDice();
-                m_LastNumber = m_MainNumber;
-                for (int i = 0; i < m_Dice.Count; i++)
+                if (m_ScoreManager.PayForRoll(m_Round)) //Checks if player has enough money
                 {
-                    m_Dice[i].SetPosition(m_DiceStartPosition.position);
-                    m_Dice[i].Roll();
+                    ChangeGameState(GameState.Rollin);
+                    ResetDice();
+                    RefreshUI();
+                    m_LastNumber = m_MainNumber;
+                    for (int i = 0; i < m_Dice.Count; i++)
+                    {
+                        m_Dice[i].Roll(m_DiceStartPosition.position);
+                    }
+                    GetUIManager().DisableRollDiceButton();
+                    CheckDiceValue();
                 }
-                //GetEventManager.RollDice();
-                CheckDiceValue();
-            }
-            else
-            {
-                m_Round = 1;
+                else //If player does not have enough money the rounds will be reset
+                {
+                    m_Round = 1;
+                }
             }
         }
 
         public void CheckDiceValue()
         {
-            GetEventManager.CheckDice();
+            m_ScoreManager.StartCheckingDice();
         }
 
+        private void RefreshUI()
+        {
+            m_EventManager.RefreshUI();
+        }
+
+        /*Disables all dice currently active and unloads them form the list
+        Then it reloads the correct amount of dice needed for the next round*/
         private void ResetDice()
         {
             for (int i = 0; i < m_Dice.Count; i++)
             {
-                m_Dice[i].gameObject.SetActive(false);
+                m_Dice[i].Disable();
             }
+            LoadNewDice();
+        }
 
-            m_Dice = new List<Dice>(GetObjectPool.GetDice(m_Round + 1));
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                RestartGame();
+            }
+            else if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                ToMainMenu();
+            }
         }
 
         public void Won()
         {
+            ChangeGameState(GameState.Rolled);
             m_Round++;
-            GetUIManager.RefreshRandomNumber();
+            RefreshUI();
             PrepareRound();
         }
 
         public void Lost()
         {
+            if (m_ScoreManager.GetMoney() <= 0f)
+            {
+                ToMainMenu();
+            }
+
+            ChangeGameState(GameState.Rolled);
             m_Round = 1;
-            GetUIManager.RefreshRandomNumber();
+            RefreshUI();
             PrepareRound();
+        }
+
+        public void RestartGame()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        public void ToMainMenu()
+        {
+            SceneManager.LoadScene("MainMenu");
         }
     }
 
